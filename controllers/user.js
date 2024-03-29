@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const TokenModel = DB.Token;
 const { sendEmail } = require("../utils/sendEmail");
 const crypto = require("crypto");
+const { json } = require("body-parser");
 require("dotenv").config();
 
 const UserModel = DB.User;
@@ -118,8 +119,57 @@ const login = async (req, res) => {
   }
 };
 
+const verifyToken = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await UserModel.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Invalid Link",
+      });
+    }
+
+    const token = await TokenModel.findOne({
+      where: {
+        userId: user.id,
+        token: req.params.token,
+      },
+    });
+
+    if (!token) {
+      return (
+        res.status(404),
+        json({
+          message: "Invalid Token !",
+        })
+      );
+    }
+
+    await user.set({
+      verified: true,
+    });
+    await token.remove();
+    return res.status(200).json({
+      message: "Email verified successfully",
+    });
+  } catch (err) {
+    return (
+      res.status(500),
+      json({
+        message: err.message,
+      })
+    );
+  }
+};
+
 module.exports = {
   createUser,
   getAllusers,
   login,
+  verifyToken
 };
