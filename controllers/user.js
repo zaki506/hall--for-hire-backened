@@ -44,11 +44,8 @@ const createUser = async (req, res) => {
       token: crypto.randomBytes(32).toString("hex"),
     });
 
-    console.log("token ----", token);
-
     const url = `${process.env.BASE_URL}users/${createdUser.id}/verify/${token.token}`;
 
-    console.log("url ----", url);
     await sendEmail(createdUser.email, "Verify Email", url);
     return res.status(201).json({
       message: "An email has been sent to your account, please verify!",
@@ -108,6 +105,25 @@ const login = async (req, res) => {
       ...user.dataValues,
       token,
     };
+
+    if (!user.verified) {
+      let emailToken = await TokenModel.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (!emailToken) {
+        const token = await TokenModel.create({
+          userId: user.id,
+          token: crypto.randomBytes(32).toString("hex"),
+        });
+
+        const url = `${process.env.BASE_URL}users/${user.id}/verify/${token.token}`;
+
+        await sendEmail(user.email, "Verify Email", url);
+      }
+    }
     return res.status(200).json({
       message: "Login Successful",
       user,
@@ -171,5 +187,5 @@ module.exports = {
   createUser,
   getAllusers,
   login,
-  verifyToken
+  verifyToken,
 };
