@@ -18,7 +18,9 @@ app.get("/", (req, res) => {
     msg: "Hello - Server is running at port : " + port,
   });
 });
-app.use("/api", routes);
+app.use("/api", routes, (req, res) => {
+  res.send("Server is up and running")
+});
 
 app.listen(port, () => {
   console.log(

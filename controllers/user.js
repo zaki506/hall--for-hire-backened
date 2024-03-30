@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const TokenModel = DB.Token;
 const { sendEmail } = require("../utils/sendEmail");
 const crypto = require("crypto");
-const { json } = require("body-parser");
 require("dotenv").config();
 
 const UserModel = DB.User;
@@ -48,8 +47,7 @@ const createUser = async (req, res) => {
 
     await sendEmail(createdUser.email, "Verify Email", url);
     return res.status(201).json({
-      message: "An email has been sent to your account, please verify!",
-      // result: createdUser,
+      message: "An email has been sent to your account, please verify !",
     });
   } catch (err) {
     return res.status(500).json({
@@ -66,7 +64,6 @@ const getAllusers = async (req, res) => {
       result: users,
       count: users.length,
     });
-    // });
   } catch (err) {
     return res.status(500).json({
       message: err.message,
@@ -96,17 +93,8 @@ const login = async (req, res) => {
         message: "Invalid Password",
       });
     }
-    console.log("user", user);
-    const payload = {
-      user,
-    };
-    const token = jwt.sign(payload, "SECRET_KEY");
-    user = {
-      ...user.dataValues,
-      token,
-    };
 
-    if (!user.verified) {
+    if (user.verified === false) {
       let emailToken = await TokenModel.findOne({
         where: {
           userId: user.id,
@@ -123,7 +111,23 @@ const login = async (req, res) => {
 
         await sendEmail(user.email, "Verify Email", url);
       }
+
+      return res.status(400).json({
+        message:
+          "An email has been sent to your email address, please verify again.",
+      });
     }
+
+    // console.log("user", user);
+    const payload = {
+      user,
+    };
+    const token = jwt.sign(payload, "SECRET_KEY");
+    user = {
+      ...user.dataValues,
+      token,
+    };
+
     return res.status(200).json({
       message: "Login Successful",
       user,
@@ -146,7 +150,7 @@ const verifyToken = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "Invalid Link",
+        message: "User not found !",
       });
     }
 
@@ -158,28 +162,27 @@ const verifyToken = async (req, res) => {
     });
 
     if (!token) {
-      return (
-        res.status(404),
-        json({
-          message: "Invalid Token !",
-        })
-      );
+      return res.status(404).json({
+        message: "Invalid Token !",
+      });
     }
 
-    await user.set({
-      verified: true,
-    });
-    await token.remove();
+    await UserModel.update(
+      {
+        verified: true,
+      },
+      { where: { id: user.id } }
+    );
+
+    await token.destroy();
+
     return res.status(200).json({
       message: "Email verified successfully",
     });
   } catch (err) {
-    return (
-      res.status(500),
-      json({
-        message: err.message,
-      })
-    );
+    return res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
@@ -189,3 +192,5 @@ module.exports = {
   login,
   verifyToken,
 };
+
+// a5115599336f5422912c98c4435db9f44a76b2782e736ae65fef08c4ad49194c
