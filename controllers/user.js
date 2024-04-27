@@ -12,6 +12,7 @@ const UserModel = DB.User;
 const createUser = async (req, res) => {
   try {
     const {
+      
       name,
       email,
       mobile,
