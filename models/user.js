@@ -20,8 +20,13 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     city: DataTypes.STRING,
     state: DataTypes.STRING,
-    postcode: DataTypes.STRING,
+    post_code: DataTypes.STRING,
     password: DataTypes.STRING,
+    role: DataTypes.ENUM(
+      "admin",
+      "vendor",
+      "user"
+    ),
     verified: DataTypes.BOOLEAN
   }, {
     sequelize,

@@ -27,15 +27,18 @@ module.exports = {
       state: {
         type: Sequelize.STRING
       },
-      postcode: {
+      post_code: {
         type: Sequelize.STRING
       },
       password: {
         type: Sequelize.STRING
       },
+      role: {
+        type: Sequelize.ENUM("admin", "vendor", "user"),
+        defaultValue: "user"
+      },
       verified: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,

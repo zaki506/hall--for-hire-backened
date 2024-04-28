@@ -12,15 +12,16 @@ const UserModel = DB.User;
 const createUser = async (req, res) => {
   try {
     const {
-      
+
       name,
       email,
       mobile,
       address,
       city,
       state,
-      postcode,
+      post_code,
       password,
+      role,
       verified,
     } = req.body;
 
@@ -34,8 +35,9 @@ const createUser = async (req, res) => {
       address,
       city,
       state,
-      postcode,
+      post_code,
       password: hashedPassword,
+      role,
       verified,
     });
 
