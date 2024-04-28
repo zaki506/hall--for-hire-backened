@@ -15,6 +15,9 @@ module.exports = {
       desc: {
         type: Sequelize.STRING
       },
+      vendor_id: {
+        type: Sequelize.INTEGER
+      },
       capacity: {
         type: Sequelize.STRING
       },
@@ -31,12 +34,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       phone1: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.STRING
       },
       phone2: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.STRING
       },
       email: {
         type: Sequelize.STRING
