@@ -1,6 +1,6 @@
 const { emit } = require("nodemon");
 const DB = require("../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 require("dotenv").config();
 
 const HallsModel = DB.Halls;
@@ -10,6 +10,7 @@ const createHall = async (req, res) => {
         const {
             title,
             desc,
+            vendor_id,
             capacity,
             street,
             city,
@@ -26,6 +27,7 @@ const createHall = async (req, res) => {
         let createdHall = await HallsModel.create({
             title,
             desc,
+            vendor_id,
             capacity,
             street,
             city,
@@ -56,7 +58,6 @@ const listAllHalls = async (req, res) => {
             message: "All halls fetched successfully !",
             count: halls.length,
             result: halls
-
         })
     } catch (err) {
         return res.status(500).json({
@@ -65,7 +66,33 @@ const listAllHalls = async (req, res) => {
     }
 }
 
+const listVendorsHalls = async (req, res, next) => {
+    const id = req.params.id
+    try {
+        const halls = await HallsModel.findAll({
+            where: {
+                vendor_id: id,
+            }
+        })
+        if(halls.length === 0) {
+            return res.status(404).json({
+                message: "No halls found for the vendor!",
+                result: halls
+            })
+        }
+        return res.status(200).json({
+            message: "Halls for the given vendor fetched !",
+            result: halls
+        })
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message
+        })
+    }
+}
+
 module.exports = {
     createHall,
-    listAllHalls
+    listAllHalls,
+    listVendorsHalls
 }
