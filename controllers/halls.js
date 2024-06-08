@@ -52,13 +52,33 @@ const createHall = async (req, res) => {
 };
 
 const listAllHalls = async (req, res) => {
+    const { city } = req.query;
+    const filters = {}
     try {
-        const halls = await HallsModel.findAll({})
-        return res.status(200).json({
-            message: "All halls fetched successfully !",
-            count: halls.length,
-            result: halls
+
+        if (city) {
+            filters.city = {
+                [Op.like]: `${city}%`
+            }
+        }
+        const halls = await HallsModel.findAll({
+            where: filters
         })
+
+        if (halls) {
+
+            return res.status(200).json({
+                message: "All halls fetched successfully !",
+                count: halls.length,
+                result: halls
+            })
+        } else {
+            return res.status(404).json({
+                message: "ANO halls found for the given location!",
+                count: halls.length,
+                result: halls
+            })
+        }
     } catch (err) {
         return res.status(500).json({
             message: err.message,
@@ -74,7 +94,7 @@ const listVendorsHalls = async (req, res, next) => {
                 vendor_id: id,
             }
         })
-        if(halls.length === 0) {
+        if (halls.length === 0) {
             return res.status(404).json({
                 message: "No halls found for the vendor!",
                 result: halls
